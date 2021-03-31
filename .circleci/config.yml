@@ -19,7 +19,6 @@ workflows:
             - install_dependencies
       - build:
           requires:
-            - e2e_tests
             - lint
             - unit_tests
       - deploy:
