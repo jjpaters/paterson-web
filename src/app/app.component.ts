@@ -12,16 +12,16 @@ export class AppComponent {
 
   constructor(private router: Router) { }
 
-  closeMenu() {
+  closeMenu(): void {
     this.navbarOpen = false;
   }
 
-  navigate(route: string) {
+  navigate(route: string): void {
     this.closeMenu();
     this.router.navigate([route]);
   }
 
-  toggleNavbar() {
+  toggleNavbar(): void {
     this.navbarOpen = !this.navbarOpen;
   }
 
