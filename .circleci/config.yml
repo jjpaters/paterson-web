@@ -81,7 +81,7 @@ jobs:
           key: v1-{{ checksum "package.json" }}
       - run: npm install
       - run: npm run build -- --prod
-      - run: zip -r ./dist/paterson-web.zip ./dist/paterson-web;
+      - run: zip -r ./dist/paterson-web.zip ./dist/paterson-web
       - persist_to_workspace:
           root: .
           paths:
@@ -95,7 +95,6 @@ jobs:
       - attach_workspace:
           at: .
       - run: ls
-      - aws-s3/sync:
+      - aws-s3/copy:
           from: ./dist/paterson-web.zip
           to: 's3://jjpaters-deployer/paterson-web'
-          overwrite: true
