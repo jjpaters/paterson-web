@@ -1,0 +1,102 @@
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@1.0.12
+
+#############################################################
+# Define workflows
+#############################################################
+workflows:
+  version: 2
+  pipeline:
+    jobs:
+      - install_dependencies
+      - lint:
+          requires:
+            - install_dependencies
+      - unit_tests:
+          requires:
+            - install_dependencies
+      - build:
+          requires:
+            - e2e_tests
+            - lint
+            - unit_tests
+      - deploy:
+          context: AWS
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+
+#############################################################
+# Define jobs
+#############################################################
+jobs:
+  install_dependencies:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-{{ checksum "package.json" }}
+      - run: npm install
+      - save_cache:
+          key: v1-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+  lint:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-{{ checksum "package.json" }}
+      - run: npm install
+      - run: npm run lint
+
+  unit_tests:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-{{ checksum "package.json" }}
+      - run: npm install
+      - run: npm run test -- --watch=false --code-coverage
+      - run: cat ./coverage/paterson-web/lcov.info  | ./node_modules/coveralls/bin/coveralls.js
+
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-{{ checksum "package.json" }}
+      - run: npm install
+      - run: npm run build -- --prod
+      - run: zip -r ./dist/paterson-web.zip ./dist/paterson-web;
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+
+  deploy:
+    docker:
+      - image: buildpack-deps:trusty
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: ls
+      - aws-s3/sync:
+          from: ./dist/paterson-web.zip
+          to: 's3://jjpaters-deployer/paterson-web'
+          overwrite: true

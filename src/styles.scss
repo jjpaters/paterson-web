@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+@import './styles/variables';
+@import '~bootstrap/scss/bootstrap';
+@import './styles/bootswatch';
+
+body {
+    padding-top: 6rem;
+}
+
+.company-label {
+    text-align: center;
+}
+
+.logo {
+    height: 3rem;
+}
