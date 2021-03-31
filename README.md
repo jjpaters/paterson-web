@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/jjpaters/paterson-web/tree/master.svg?style=svg)](https://circleci.com/gh/jjpaters/paterson-web/tree/master)
+[![CircleCI](https://circleci.com/gh/jjpaters/paterson-web/tree/main.svg?style=svg)](https://circleci.com/gh/jjpaters/paterson-web/tree/main)
 [![Coverage Status](https://coveralls.io/repos/github/jjpaters/paterson-web/badge.svg)](https://coveralls.io/github/jjpaters/paterson-web)
 [![DeepScan grade](https://deepscan.io/api/teams/3232/projects/16481/branches/355291/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3232&pid=16481&bid=355291)
 
