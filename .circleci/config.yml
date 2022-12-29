@@ -87,6 +87,7 @@ jobs:
     executor: node-browsers
     steps:
       - checkout
+      - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       - restore_cache:
           key: v1-{{ checksum "package.json" }}
