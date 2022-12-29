@@ -62,7 +62,7 @@ jobs:
       - restore_cache:
           key: v1-{{ checksum "package.json" }}
       - run: npm install
-      - run: npm run build -- --prod
+      - run: npm run build -- --configuration=production
       - run: zip -r ./dist/paterson-web.zip ./dist/paterson-web
       - persist_to_workspace:
           root: .
