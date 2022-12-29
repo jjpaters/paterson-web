@@ -84,7 +84,7 @@ jobs:
     executor: node
     steps:
       - checkout
-      - - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools
       - restore_cache:
           key: v1-{{ checksum "package.json" }}
       - run: npm install
