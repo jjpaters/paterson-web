@@ -2,6 +2,15 @@ version: 2.1
 
 orbs:
   aws-s3: circleci/aws-s3@1.0.12
+  browser-tools: circleci/browser-tools@1.4.0
+
+executors:
+  node:
+    docker:
+      - image: cimg/node:14.20.1
+  node-browsers:
+    docker:
+      - image: cimg/node:14.20.1-browsers
 
 #############################################################
 # Define workflows
@@ -10,21 +19,22 @@ workflows:
   version: 2
   pipeline:
     jobs:
-      - install_dependencies
+      - install_dependencies      
+      - build:
+          requires:
+            - install_dependencies
       - lint:
           requires:
             - install_dependencies
       - unit_tests:
           requires:
             - install_dependencies
-      - build:
-          requires:
-            - lint
-            - unit_tests
       - deploy:
           context: AWS
           requires:
             - build
+            - lint
+            - unit_tests
           filters:
             branches:
               only:
@@ -36,8 +46,7 @@ workflows:
 jobs:
   install_dependencies:
     working_directory: ~/app
-    docker:
-      - image: circleci/node:10-browsers
+    executor: node
     steps:
       - checkout
       - restore_cache:
@@ -48,10 +57,24 @@ jobs:
           paths:
             - node_modules
 
+  build:
+    working_directory: ~/app
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-{{ checksum "package.json" }}
+      - run: npm install
+      - run: npm run build -- --configuration=production
+      - run: zip -r ./dist/paterson-web.zip ./dist/paterson-web
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+
   lint:
     working_directory: ~/app
-    docker:
-      - image: circleci/node:10-browsers
+    executor: node
     steps:
       - checkout
       - restore_cache:
@@ -61,31 +84,16 @@ jobs:
 
   unit_tests:
     working_directory: ~/app
-    docker:
-      - image: circleci/node:10-browsers
+    executor: node-browsers
     steps:
       - checkout
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
       - restore_cache:
           key: v1-{{ checksum "package.json" }}
       - run: npm install
       - run: npm run test -- --watch=false --code-coverage
       - run: cat ./coverage/paterson-web/lcov.info  | ./node_modules/coveralls/bin/coveralls.js
-
-  build:
-    working_directory: ~/app
-    docker:
-      - image: circleci/node:10-browsers
-    steps:
-      - checkout
-      - restore_cache:
-          key: v1-{{ checksum "package.json" }}
-      - run: npm install
-      - run: npm run build -- --prod
-      - run: zip -r ./dist/paterson-web.zip ./dist/paterson-web
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
 
   deploy:
     docker:
