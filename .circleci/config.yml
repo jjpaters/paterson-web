@@ -103,5 +103,5 @@ jobs:
       - attach_workspace:
           at: .
       - aws-s3/sync:
-          from: ./dist/paterson-web.zip
+          from: ./dist/paterson-web
           to: 's3://jjpaters-deployer/paterson-web'
